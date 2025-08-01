@@ -75,3 +75,21 @@ exports.handler = async (event) => {
         name: row[1],
         amount: parseFloat(row[2]),
         timestamp: row[0]
+})).sort((a, b) => b.amount - a.amount);
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(bids.slice(0, 10))
+      };
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Failed to access leaderboard' })
+    };
+  }
+};
