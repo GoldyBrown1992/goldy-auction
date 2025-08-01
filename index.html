@@ -1436,10 +1436,31 @@
                 }
                 
                 // Success!
-                document.getElementById('authorized-amount').textContent = `$${formData.amount.toLocaleString()}`;
-                showSuccessModal();
-                closeBidModal();
-                celebrateNewBid();
+document.getElementById('authorized-amount').textContent = `$${formData.amount.toLocaleString()}`;
+
+// Save bid to leaderboard BEFORE closing modal
+const bidData = {
+    name: formData.name,
+    amount: formData.amount
+};
+
+fetch('/.netlify/functions/get-leaderboard', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bidData)
+})
+.then(response => response.json())
+.then(data => {
+    console.log('✅ Bid saved to leaderboard!');
+    updateLeaderboard();
+})
+.catch(error => {
+    console.error('Error saving to leaderboard:', error);
+});
+
+showSuccessModal();
+closeBidModal();
+celebrateNewBid();
                 
                 // Refresh leaderboard after 2 seconds
                 setTimeout(() => {
@@ -1725,6 +1746,7 @@ setInterval(updateLeaderboard, 30000);
     </script>
 </body>
 </html>
+
 
 
 
