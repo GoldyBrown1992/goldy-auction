@@ -1566,10 +1566,10 @@
     successModal.style.display = 'block';
     document.body.style.overflow = 'hidden';
     
-    // Save bid to leaderboard
+    // Save bid to leaderboard with CORRECT field IDs
     const bidData = {
-        name: document.getElementById('name').value,
-        amount: document.getElementById('amount').value
+        name: document.getElementById('bidderName').value,
+        amount: document.getElementById('bidAmount').value
     };
     
     fetch('/.netlify/functions/get-leaderboard', {
@@ -1668,4 +1668,5 @@
     </script>
 </body>
 </html>
+
 
