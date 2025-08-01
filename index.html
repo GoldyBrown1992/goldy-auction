@@ -1562,15 +1562,26 @@
         // ========================================
         // SUCCESS MODAL & CELEBRATION
         // ========================================
-        function showSuccessModal() {
+      function showSuccessModal() {
     successModal.style.display = 'block';
     document.body.style.overflow = 'hidden';
     
+    // Debug: Check if we can get the values
+    const nameField = document.getElementById('bidderName');
+    const amountField = document.getElementById('bidAmount');
+    
+    console.log('Name field:', nameField);
+    console.log('Amount field:', amountField);
+    console.log('Name value:', nameField ? nameField.value : 'NAME FIELD NOT FOUND');
+    console.log('Amount value:', amountField ? amountField.value : 'AMOUNT FIELD NOT FOUND');
+    
     // Save bid to leaderboard with CORRECT field IDs
     const bidData = {
-        name: document.getElementById('bidderName').value,
-        amount: document.getElementById('bidAmount').value
+        name: nameField ? nameField.value : '',
+        amount: amountField ? amountField.value : ''
     };
+    
+    console.log('Bid data being sent:', bidData);
     
     fetch('/.netlify/functions/get-leaderboard', {
         method: 'POST',
@@ -1579,7 +1590,7 @@
     })
     .then(response => response.json())
     .then(data => {
-        console.log('✅ Bid saved to leaderboard!');
+        console.log('✅ Bid saved to leaderboard!', data);
         // Refresh the leaderboard display
         updateLeaderboard();
     })
@@ -1714,6 +1725,7 @@ setInterval(updateLeaderboard, 30000);
     </script>
 </body>
 </html>
+
 
 
 
