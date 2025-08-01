@@ -1563,9 +1563,30 @@
         // SUCCESS MODAL & CELEBRATION
         // ========================================
         function showSuccessModal() {
-            successModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
+    successModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Save bid to leaderboard
+    const bidData = {
+        name: document.getElementById('name').value,
+        amount: document.getElementById('amount').value
+    };
+    
+    fetch('/.netlify/functions/get-leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bidData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('✅ Bid saved to leaderboard!');
+        // Refresh the leaderboard display
+        updateLeaderboard();
+    })
+    .catch(error => {
+        console.error('Error saving to leaderboard:', error);
+    });
+}
         
         function celebrateNewBid() {
             const bidSection = document.querySelector('.bid-section');
@@ -1647,3 +1668,4 @@
     </script>
 </body>
 </html>
+
