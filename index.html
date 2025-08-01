@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Goldy Brown's Auction - Live Platform</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanent+Marker&family=Righteous&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanshowent+Marker&family=Righteous&display=swap');
         
         * {
             margin: 0;
@@ -1587,7 +1587,53 @@
         console.error('Error saving to leaderboard:', error);
     });
 }
+        function updateLeaderboard() {
+    fetch('/.netlify/functions/get-leaderboard')
+    .then(response => response.json())
+    .then(bids => {
+        const leaderboardList = document.querySelector('.leaderboard-list');
+        const leaderboardPreview = document.querySelector('.leaderboard-preview');
         
+        if (bids.length === 0) {
+            if (leaderboardList) {
+                leaderboardList.innerHTML = '<p>No bids yet!</p>';
+            }
+            if (leaderboardPreview) {
+                leaderboardPreview.textContent = 'No bids yet! Be the first!';
+            }
+            return;
+        }
+        
+        // Update the preview (collapsed view)
+        if (leaderboardPreview) {
+            leaderboardPreview.innerHTML = bids.slice(0, 3)
+                .map((bid, index) => `${index + 1}. ${bid.name} - $${bid.amount}`)
+                .join('<br>');
+        }
+        
+        // Update the full list (expanded view)
+        if (leaderboardList) {
+            leaderboardList.innerHTML = bids
+                .map((bid, index) => `
+                    <div class="leaderboard-item ${index === 0 ? 'leader' : ''}">
+                        <span class="rank">${index + 1}</span>
+                        <span class="bidder-name">${bid.name}</span>
+                        <span class="bid-amount">$${bid.amount}</span>
+                    </div>
+                `)
+                .join('');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating leaderboard:', error);
+    });
+}
+
+// Call it when the page loads
+updateLeaderboard();
+
+// Update it every 30 seconds
+setInterval(updateLeaderboard, 30000);
         function celebrateNewBid() {
             const bidSection = document.querySelector('.bid-section');
             bidSection.classList.add('celebration');
@@ -1668,5 +1714,6 @@
     </script>
 </body>
 </html>
+
 
 
