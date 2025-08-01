@@ -674,19 +674,31 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #ffffff, #f8f8f8);
-            margin: 2% auto;
-            padding: 45px;
-            border: 8px solid #000000;
-            border-radius: 30px;
-            width: 90%;
-            max-width: 650px;
-            box-shadow: 
-                0 30px 60px rgba(0,0,0,0.6),
-                inset 0 3px 20px rgba(255,255,255,0.9);
-            position: relative;
-            animation: modalAppear 0.6s ease-out;
-        }
+    background: linear-gradient(135deg, #ffffff, #f8f8f8);
+    margin: 2% auto;
+    padding: 45px;
+    border: 8px solid #000000;
+    border-radius: 30px;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: 
+        0 30px 60px rgba(0,0,0,0.6),
+        inset 0 3px 20px rgba(255,255,255,0.9);
+    position: relative;
+    animation: modalAppear 0.6s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        max-height: 85vh;
+        margin: 10px auto;
+        padding: 20px;
+        padding-bottom: 60px;
+    }
+}
 
         @keyframes modalAppear {
             from { 
