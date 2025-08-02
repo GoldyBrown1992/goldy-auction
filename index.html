@@ -1157,7 +1157,12 @@
         let elements = null;
         let cardElement = null;
         let currentHighBid = 0;
+        
         let leaderboardData = [];
+        // Fetch initial leaderboard data on page load
+document.addEventListener('DOMContentLoaded', () => {
+    fetchLeaderboardData();
+});
         
         // ========================================
         // DOM ELEMENTS
@@ -1178,7 +1183,7 @@
         // ========================================
         function updateCountdown() {
             const now = new Date();
-            const timeRemaining = AUCTION_END_DATE - now;
+            const timeRemaining = auctionEndDate - now;
             
             if (timeRemaining <= 0) {
                 document.getElementById('days').textContent = '00';
@@ -1755,6 +1760,7 @@ setInterval(updateLeaderboard, 30000);
     </script>
 </body>
 </html>
+
 
 
 
