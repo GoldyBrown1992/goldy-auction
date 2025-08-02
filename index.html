@@ -1150,7 +1150,7 @@
         // ========================================
         const STRIPE_PUBLISHABLE_KEY = 'pk_live_51Li2EuHHRq5TjW22f3qkBVCiibv9CvogZuYTRa79BXS5ZhWxszEeBrBZZRhzrwPR4IzYelVSy4qxWfQ3wwWxWNhP00ZR6je4XQ';
         const API_BASE_URL = '/.netlify/functions'; // For production deployment
-        const AUCTION_END_DATE = new Date('2025-08-31T23:59:59-07:00'); // August 31, 2025 PST
+        const auctionEndDate = new Date('2025-09-01T23:59:59'); // September 1st
         
         // Initialize variables
         let stripe = null;
@@ -1465,8 +1465,16 @@ celebrateNewBid();
                 
                 // Refresh leaderboard after 2 seconds
                 setTimeout(() => {
-                    fetchLeaderboardData();
-                }, 2000);
+    fetchLeaderboardData();
+    
+    // Update highest bid after data loads
+    setTimeout(() => {
+        if (leaderboardData.length > 0) {
+            currentHighBid = Math.max(...leaderboardData.map(bid => bid.amount));
+            updateCurrentHighDisplay();
+        }
+    }, 500);
+}, 2000);
                 
                 console.log('🎉 Bid Successfully Authorized!');
                 
@@ -1747,6 +1755,7 @@ setInterval(updateLeaderboard, 30000);
     </script>
 </body>
 </html>
+
 
 
 
