@@ -1526,60 +1526,60 @@ celebrateNewBid();
                 leaderboardData = data || [];
                 currentHighBid = leaderboardData.length > 0 ? leaderboardData[0].amount : 0;
                 
-                updateLeaderboardDisplay();
-                updateCurrentHighDisplay();
-                
-            } catch (error) {
-                console.error('❌ Error fetching leaderboard:', error);
-                // Show demo data if backend not connected
-                leaderboardData = [
-                    { name: 'Demo User', amount: 1000 },
-                    { name: 'Test Bidder', amount: 500 }
-                ];
-                currentHighBid = 1000;
-                updateLeaderboardDisplay();
-                updateCurrentHighDisplay();
+                function updateLeaderboardDisplay() {
+    let html = '';
+    
+    if (leaderboardData.length === 0) {
+        html = `<div style="text-align: center; padding: 20px; color: #666; font-size: 1rem;">
+            🎯 No bids yet!<br>Be the first to bid! 🚀
+        </div>`;
+    } else {
+        // Get highest bid per person
+        const highestBids = {};
+        leaderboardData.forEach(bid => {
+            if (!highestBids[bid.name] || bid.amount > highestBids[bid.name]) {
+                highestBids[bid.name] = bid.amount;
             }
-        }
+        });
         
-        // ========================================
-        // UPDATE DISPLAYS
-        // ========================================
-        function updateCurrentHighDisplay() {
-            const displayAmount = `$${currentHighBid.toLocaleString()}`;
-            currentHighElement.textContent = displayAmount;
-            leaderboardPreview.textContent = `#1: ${displayAmount}`;
-        }
+        // Convert to array and sort by amount
+        const sortedBidders = Object.entries(highestBids)
+            .map(([name, amount]) => ({ name, amount }))
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 5); // Top 5 only
         
-        function updateLeaderboardDisplay() {
-            let html = '';
+        // Display with badges
+        sortedBidders.forEach((bidder, i) => {
+            const rank = i + 1;
+            const rankBadge = rank === 1 ? '🥇' : 
+                             rank === 2 ? '🥈' : 
+                             rank === 3 ? '🥉' : 
+                             `#${rank}`;
             
-            if (leaderboardData.length === 0) {
-                html = `
-                    <div style="text-align: center; padding: 20px; color: #666; font-size: 1rem;">
-                        🎯 No bids yet!<br>Be the first to bid! 🚀
-                    </div>
-                `;
-            } else {
-                const displayCount = Math.min(leaderboardData.length, 10);
-                
-                for (let i = 0; i < displayCount; i++) {
-                    const bidder = leaderboardData[i];
-                    const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
-                    
-                    html += `
-                        <div class="bid-entry" style="animation-delay: ${i * 0.15}s">
-                            <span class="bid-rank">${rank}</span>
-                            <span class="bid-name">${bidder.name}</span>
-                            <span class="bid-amount-display">$${bidder.amount.toLocaleString()}</span>
-                        </div>
-                    `;
-                }
-            }
-            
-            leaderboardContent.innerHTML = html;
-            totalBidsElement.textContent = leaderboardData.length;
+            html += `
+                <div class="bid-entry" style="animation-delay: ${i * 0.15}s">
+                    <span class="bid-rank">${rankBadge}</span>
+                    <span class="bid-name">${bidder.name}</span>
+                    <span class="bid-amount-display">$${bidder.amount}</span>
+                </div>
+            `;
+        });
+    }
+    
+    leaderboardContent.innerHTML = html;
+    
+    // Update the preview too
+    const leaderboardPreview = document.querySelector('.leaderboard-preview');
+    if (leaderboardPreview) {
+        if (sortedBidders.length === 0) {
+            leaderboardPreview.textContent = 'No bids yet! Be the first!';
+        } else {
+            leaderboardPreview.innerHTML = sortedBidders.slice(0, 3)
+                .map((bid, i) => `${i + 1}. ${bid.name} - $${bid.amount}`)
+                .join('<br>');
         }
+    }
+}
         
         // ========================================
         // SUCCESS MODAL & CELEBRATION
@@ -1747,6 +1747,7 @@ setInterval(updateLeaderboard, 30000);
     </script>
 </body>
 </html>
+
 
 
 
