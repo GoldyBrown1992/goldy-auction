@@ -1430,6 +1430,7 @@
                 });
                 
                 const result = await response.json();
+                console.log('Payment intent response:', result);
                 
                 if (!response.ok || result.error) {
                     throw new Error(result.error || 'Failed to authorize payment');
@@ -1746,6 +1747,7 @@ setInterval(updateLeaderboard, 30000);
     </script>
 </body>
 </html>
+
 
 
 
