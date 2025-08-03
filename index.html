@@ -1436,6 +1436,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const result = await response.json();
                 console.log('Payment intent response:', result);
+                // Save bid to leaderboard with payment intent ID
+const bidResponse = await fetch(`${API_BASE_URL}/get-leaderboard`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        name: formData.name,
+        amount: formData.amount,
+        email: formData.email,
+        payment_intent_id: result.payment_intent_id
+    })
+});
+
+// Also save to sheets with payment intent ID
+await fetch(`${API_BASE_URL}/save-to-sheets`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        name: formData.name,
+        amount: formData.amount,
+        email: formData.email,
+        payment_intent_id: result.payment_intent_id
+    })
+});
                 
                 if (!response.ok || result.error) {
                     throw new Error(result.error || 'Failed to authorize payment');
@@ -1760,6 +1783,7 @@ setInterval(updateLeaderboard, 30000);
     </script>
 </body>
 </html>
+
 
 
 
