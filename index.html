@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Goldy Brown's Auction - Live Platform</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanshowent+Marker&family=Righteous&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanent+Marker&family=Righteous&display=swap');
         
         * {
             margin: 0;
@@ -19,7 +19,8 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-        
+        }
+
         /* Animated Background */
         .background {
             position: fixed;
@@ -673,31 +674,31 @@
         }
 
         .modal-content {
-    background: linear-gradient(135deg, #ffffff, #f8f8f8);
-    margin: 2% auto;
-    padding: 45px;
-    border: 8px solid #000000;
-    border-radius: 30px;
-    width: 90%;
-    max-width: 650px;
-    box-shadow: 
-        0 30px 60px rgba(0,0,0,0.6),
-        inset 0 3px 20px rgba(255,255,255,0.9);
-    position: relative;
-    animation: modalAppear 0.6s ease-out;
-    max-height: 90vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
+            background: linear-gradient(135deg, #ffffff, #f8f8f8);
+            margin: 2% auto;
+            padding: 45px;
+            border: 8px solid #000000;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 650px;
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.6),
+                inset 0 3px 20px rgba(255,255,255,0.9);
+            position: relative;
+            animation: modalAppear 0.6s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-@media (max-width: 768px) {
-    .modal-content {
-        max-height: 85vh;
-        margin: 10px auto;
-        padding: 20px;
-        padding-bottom: 60px;
-    }
-}
+        @media (max-width: 768px) {
+            .modal-content {
+                max-height: 85vh;
+                margin: 10px auto;
+                padding: 20px;
+                padding-bottom: 60px;
+            }
+        }
 
         @keyframes modalAppear {
             from { 
@@ -1148,20 +1149,19 @@
         // PRODUCTION CONFIGURATION
         // ========================================
         const STRIPE_PUBLISHABLE_KEY = 'pk_live_51Li2EuHHRq5TjW22f3qkBVCiibv9CvogZuYTRa79BXS5ZhWxszEeBrBZZRhzrwPR4IzYelVSy4qxWfQ3wwWxWNhP00ZR6je4XQ';
-        const API_BASE_URL = '/.netlify/functions'; // For production deployment
-        const auctionEndDate = new Date('2025-09-01T23:59:59'); // September 1st
+        const API_BASE_URL = '/.netlify/functions';
+        
+        // Create auction end date - September 1, 2025
+        const auctionEndDate = new Date('2025-09-01T23:59:59-07:00');
+        
+        console.log('Auction End Date:', auctionEndDate.toString());
         
         // Initialize variables
         let stripe = null;
         let elements = null;
         let cardElement = null;
         let currentHighBid = 0;
-        
         let leaderboardData = [];
-        // Fetch initial leaderboard data on page load
-document.addEventListener('DOMContentLoaded', () => {
-    fetchLeaderboardData();
-});
         
         // ========================================
         // DOM ELEMENTS
@@ -1181,23 +1181,48 @@ document.addEventListener('DOMContentLoaded', () => {
         // COUNTDOWN TIMER
         // ========================================
         function updateCountdown() {
+            // Check if elements exist
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            
+            if (!daysEl || !hoursEl || !minutesEl || !secondsEl) {
+                console.error('Timer elements not found!');
+                return;
+            }
+            
             const now = new Date();
             const timeRemaining = auctionEndDate - now;
             
+            if (isNaN(auctionEndDate.getTime())) {
+                console.error('Invalid auction end date!');
+                daysEl.textContent = 'ERR';
+                hoursEl.textContent = 'ERR';
+                minutesEl.textContent = 'ERR';
+                secondsEl.textContent = 'ERR';
+                return;
+            }
+            
             if (timeRemaining <= 0) {
-                document.getElementById('days').textContent = '00';
-                document.getElementById('hours').textContent = '00';
-                document.getElementById('minutes').textContent = '00';
-                document.getElementById('seconds').textContent = '00';
+                daysEl.textContent = '00';
+                hoursEl.textContent = '00';
+                minutesEl.textContent = '00';
+                secondsEl.textContent = '00';
                 
                 const timerTitle = document.querySelector('.timer-title');
                 if (timerTitle) {
                     timerTitle.textContent = '🏁 AUCTION ENDED 🏁';
                 }
                 
-                timeLeftDisplay.textContent = 'ENDED';
-                bidButton.disabled = true;
-                bidButton.textContent = 'AUCTION ENDED';
+                if (timeLeftDisplay) {
+                    timeLeftDisplay.textContent = 'ENDED';
+                }
+                
+                if (bidButton) {
+                    bidButton.disabled = true;
+                    bidButton.textContent = 'AUCTION ENDED';
+                }
                 return;
             }
             
@@ -1206,17 +1231,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            document.getElementById('days').textContent = String(days).padStart(2, '0');
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            daysEl.textContent = String(days).padStart(2, '0');
+            hoursEl.textContent = String(hours).padStart(2, '0');
+            minutesEl.textContent = String(minutes).padStart(2, '0');
+            secondsEl.textContent = String(seconds).padStart(2, '0');
             
-            timeLeftDisplay.textContent = `${days} Days`;
+            if (timeLeftDisplay) {
+                timeLeftDisplay.textContent = `${days} Days`;
+            }
             
             if (days === 0 && hours < 24) {
                 const timerSection = document.querySelector('.timer-section');
-                timerSection.style.background = 'linear-gradient(145deg, #FF0000, #FF4500)';
-                timerSection.style.animation = 'float 1s infinite ease-in-out';
+                if (timerSection) {
+                    timerSection.style.background = 'linear-gradient(145deg, #FF0000, #FF4500)';
+                    timerSection.style.animation = 'float 1s infinite ease-in-out';
+                }
             }
         }
         
@@ -1269,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         displayError.textContent = '';
                     }
-                     });
+                });
 
                 console.log('✅ Stripe initialized successfully!');
             } catch (error) {
@@ -1310,13 +1339,131 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // ========================================
+        // UPDATE CURRENT HIGH BID DISPLAY
+        // ========================================
+        function updateCurrentHighDisplay() {
+            if (currentHighElement) {
+                currentHighElement.textContent = `$${currentHighBid.toLocaleString()}`;
+            }
+        }
+        
+        // ========================================
+        // UPDATE LEADERBOARD DISPLAY
+        // ========================================
+        function updateLeaderboardDisplay() {
+            let html = '';
+            
+            if (leaderboardData.length === 0) {
+                html = `<div style="text-align: center; padding: 20px; color: #666; font-size: 1rem;">
+                    🎯 No bids yet!<br>Be the first to bid! 🚀
+                </div>`;
+                if (leaderboardPreview) {
+                    leaderboardPreview.textContent = 'No bids yet!';
+                }
+            } else {
+                // Get unique bidders with their highest bid
+                const bidderMap = new Map();
+                
+                leaderboardData.forEach(bid => {
+                    const existingBid = bidderMap.get(bid.name);
+                    if (!existingBid || bid.amount > existingBid.amount) {
+                        bidderMap.set(bid.name, bid);
+                    }
+                });
+                
+                // Convert to array and sort by amount
+                const uniqueBidders = Array.from(bidderMap.values())
+                    .sort((a, b) => b.amount - a.amount)
+                    .slice(0, 5); // Top 5 only
+                
+                // Display with badges
+                uniqueBidders.forEach((bidder, i) => {
+                    const rank = i + 1;
+                    const rankBadge = rank === 1 ? '🥇' : 
+                                     rank === 2 ? '🥈' : 
+                                     rank === 3 ? '🥉' : 
+                                     `#${rank}`;
+                    
+                    html += `
+                        <div class="bid-entry" style="animation-delay: ${i * 0.15}s">
+                            <span class="bid-rank">${rankBadge}</span>
+                            <span class="bid-name">${bidder.name}</span>
+                            <span class="bid-amount-display">$${bidder.amount.toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+                
+                // Update preview
+                if (leaderboardPreview) {
+                    if (uniqueBidders.length > 0) {
+                        leaderboardPreview.textContent = `#1: ${uniqueBidders[0].name} - $${uniqueBidders[0].amount}`;
+                    }
+                }
+            }
+            
+            if (leaderboardContent) {
+                leaderboardContent.innerHTML = html;
+            }
+            
+            // Update total bids count
+            if (totalBidsElement) {
+                totalBidsElement.textContent = leaderboardData.length;
+            }
+        }
+        
+        // ========================================
+        // FETCH LEADERBOARD DATA
+        // ========================================
+        async function fetchLeaderboardData() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/get-leaderboard`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to fetch leaderboard');
+                }
+                
+                leaderboardData = data || [];
+                
+                // Calculate highest bid
+                if (leaderboardData.length > 0) {
+                    currentHighBid = Math.max(...leaderboardData.map(bid => bid.amount));
+                } else {
+                    currentHighBid = 0;
+                }
+                
+                updateCurrentHighDisplay();
+                updateLeaderboardDisplay();
+                
+                console.log('✅ Leaderboard updated:', leaderboardData.length, 'bids');
+                
+            } catch (error) {
+                console.error('❌ Error fetching leaderboard:', error);
+                if (leaderboardContent) {
+                    leaderboardContent.innerHTML = `<div style="text-align: center; padding: 20px; color: #666;">
+                        ❌ Error loading leaderboard<br>
+                        <button onclick="fetchLeaderboardData()" style="margin-top: 10px; padding: 5px 10px; background: #FF6B35; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+                    </div>`;
+                }
+            }
+        }
+        
+        // ========================================
         // EVENT LISTENERS
         // ========================================
         function setupEventListeners() {
             try {
-                bidButton.addEventListener('click', openBidModal);
-                closeModal.addEventListener('click', closeBidModal);
-                bidForm.addEventListener('submit', handleBidSubmission);
+                if (bidButton) {
+                    bidButton.addEventListener('click', openBidModal);
+                }
+                
+                if (closeModal) {
+                    closeModal.addEventListener('click', closeBidModal);
+                }
+                
+                if (bidForm) {
+                    bidForm.addEventListener('submit', handleBidSubmission);
+                }
                 
                 window.addEventListener('click', (event) => {
                     if (event.target === bidModal) {
@@ -1348,32 +1495,50 @@ document.addEventListener('DOMContentLoaded', () => {
         // MODAL FUNCTIONS
         // ========================================
         function openBidModal() {
-            bidModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            
-            const minBid = 1; // Always $1 minimum for testing
-            document.getElementById('bidAmount').min = minBid;
-            document.getElementById('bidAmount').placeholder = `Minimum: $${minBid}`;
-            
-            setTimeout(() => {
-                document.getElementById('bidderName').focus();
-            }, 300);
+            if (bidModal) {
+                bidModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                
+                const minBid = Math.max(1, currentHighBid + 1);
+                const bidAmountInput = document.getElementById('bidAmount');
+                if (bidAmountInput) {
+                    bidAmountInput.min = minBid;
+                    bidAmountInput.value = minBid;
+                    bidAmountInput.placeholder = `Minimum: $${minBid}`;
+                }
+                
+                setTimeout(() => {
+                    const nameInput = document.getElementById('bidderName');
+                    if (nameInput) {
+                        nameInput.focus();
+                    }
+                }, 300);
+            }
         }
         
         function closeBidModal() {
-            bidModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            bidForm.reset();
-            document.getElementById('card-errors').textContent = '';
+            if (bidModal) {
+                bidModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                if (bidForm) {
+                    bidForm.reset();
+                }
+                const cardErrors = document.getElementById('card-errors');
+                if (cardErrors) {
+                    cardErrors.textContent = '';
+                }
+            }
         }
         
         function closeSuccessModal() {
-            successModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            if (successModal) {
+                successModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
         }
         
         // ========================================
-        // BID SUBMISSION HANDLER - PRODUCTION
+        // BID SUBMISSION HANDLER
         // ========================================
         async function handleBidSubmission(event) {
             event.preventDefault();
@@ -1392,6 +1557,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 
                 if (!validateBidData(formData)) {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
                     return;
                 }
                 
@@ -1435,73 +1602,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const result = await response.json();
                 console.log('Payment intent response:', result);
+                
                 // Save bid to leaderboard with payment intent ID
-const bidResponse = await fetch(`${API_BASE_URL}/get-leaderboard`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        name: formData.name,
-        amount: formData.amount,
-        email: formData.email,
-        payment_intent_id: result.payment_intent_id
-    })
-});
-
-// Also save to sheets with payment intent ID
-await fetch(`${API_BASE_URL}/save-to-sheets`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        name: formData.name,
-        amount: formData.amount,
-        email: formData.email,
-        payment_intent_id: result.payment_intent_id
-    })
-});
+                const bidResponse = await fetch(`${API_BASE_URL}/get-leaderboard`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.name,
+                        amount: formData.amount,
+                        email: formData.email,
+                        payment_intent_id: result.payment_intent_id
+                    })
+                });
+                
+                // Also save to sheets with payment intent ID
+                await fetch(`${API_BASE_URL}/save-to-sheets`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.name,
+                        amount: formData.amount,
+                        email: formData.email,
+                        payment_intent_id: result.payment_intent_id
+                    })
+                });
                 
                 if (!response.ok || result.error) {
                     throw new Error(result.error || 'Failed to authorize payment');
                 }
                 
                 // Success!
-document.getElementById('authorized-amount').textContent = `$${formData.amount.toLocaleString()}`;
-
-// Save bid to leaderboard BEFORE closing modal
-const bidData = {
-    name: formData.name,
-    amount: formData.amount
-};
-
-fetch('/.netlify/functions/get-leaderboard', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(bidData)
-})
-.then(response => response.json())
-.then(data => {
-    console.log('✅ Bid saved to leaderboard!');
-    updateLeaderboard();
-})
-.catch(error => {
-    console.error('Error saving to leaderboard:', error);
-});
-
-showSuccessModal();
-closeBidModal();
-celebrateNewBid();
+                document.getElementById('authorized-amount').textContent = `$${formData.amount.toLocaleString()}`;
+                showSuccessModal();
+                closeBidModal();
+                celebrateNewBid();
                 
-                // Refresh leaderboard after 2 seconds
+                // Refresh leaderboard immediately
                 setTimeout(() => {
-    fetchLeaderboardData();
-    
-    // Update highest bid after data loads
-    setTimeout(() => {
-        if (leaderboardData.length > 0) {
-            currentHighBid = Math.max(...leaderboardData.map(bid => bid.amount));
-            updateCurrentHighDisplay();
-        }
-    }, 500);
-}, 2000);
+                    fetchLeaderboardData();
+                }, 500);
                 
                 console.log('🎉 Bid Successfully Authorized!');
                 
@@ -1528,9 +1667,10 @@ celebrateNewBid();
                 return false;
             }
             
-            if (!data.amount || data.amount < 1) {
-    alert(`❌ Bid must be at least $1`);
-    return false;
+            const minBid = Math.max(1, currentHighBid + 1);
+            if (!data.amount || data.amount < minBid) {
+                alert(`❌ Bid must be at least $${minBid}`);
+                return false;
             }
             
             if (data.amount > 1000000) {
@@ -1547,241 +1687,21 @@ celebrateNewBid();
         }
         
         // ========================================
-        // FETCH LEADERBOARD DATA
-        // ========================================
-        async function fetchLeaderboardData() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/get-leaderboard`);
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to fetch leaderboard');
-                }
-                
-                leaderboardData = data || [];
-                currentHighBid = leaderboardData.length > 0 ? leaderboardData[0].amount : 0;
-                
-                function updateLeaderboardDisplay() {
-    let html = '';
-    
-    if (leaderboardData.length === 0) {
-        html = `<div style="text-align: center; padding: 20px; color: #666; font-size: 1rem;">
-            🎯 No bids yet!<br>Be the first to bid! 🚀
-        </div>`;
-    } else {
-        // Get highest bid per person
-        const highestBids = {};
-        leaderboardData.forEach(bid => {
-            if (!highestBids[bid.name] || bid.amount > highestBids[bid.name]) {
-                highestBids[bid.name] = bid.amount;
-            }
-        });
-        
-        // Convert to array and sort by amount
-        const sortedBidders = Object.entries(highestBids)
-            .map(([name, amount]) => ({ name, amount }))
-            .sort((a, b) => b.amount - a.amount)
-            .slice(0, 5); // Top 5 only
-        
-        // Display with badges
-        sortedBidders.forEach((bidder, i) => {
-            const rank = i + 1;
-            const rankBadge = rank === 1 ? '🥇' : 
-                             rank === 2 ? '🥈' : 
-                             rank === 3 ? '🥉' : 
-                             `#${rank}`;
-            
-            html += `
-                <div class="bid-entry" style="animation-delay: ${i * 0.15}s">
-                    <span class="bid-rank">${rankBadge}</span>
-                    <span class="bid-name">${bidder.name}</span>
-                    <span class="bid-amount-display">$${bidder.amount}</span>
-                </div>
-            `;
-        });
-    }
-    
-    leaderboardContent.innerHTML = html;
-    
-    // Update the preview too
-    const leaderboardPreview = document.querySelector('.leaderboard-preview');
-    if (leaderboardPreview) {
-        if (sortedBidders.length === 0) {
-            leaderboardPreview.textContent = 'No bids yet! Be the first!';
-        } else {
-            leaderboardPreview.innerHTML = sortedBidders.slice(0, 3)
-                .map((bid, i) => `${i + 1}. ${bid.name} - $${bid.amount}`)
-                .join('<br>');
-        }
-    }
-}
-        
-        // ========================================
         // SUCCESS MODAL & CELEBRATION
         // ========================================
-      function showSuccessModal() {
-    successModal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-    
-    // Debug: Check if we can get the values
-    const nameField = document.getElementById('bidderName');
-    const amountField = document.getElementById('bidAmount');
-    
-    console.log('Name field:', nameField);
-    console.log('Amount field:', amountField);
-    console.log('Name value:', nameField ? nameField.value : 'NAME FIELD NOT FOUND');
-    console.log('Amount value:', amountField ? amountField.value : 'AMOUNT FIELD NOT FOUND');
-    
-    // Save bid to leaderboard with CORRECT field IDs
-    const bidData = {
-        name: nameField ? nameField.value : '',
-        amount: amountField ? amountField.value : ''
-    };
-    
-    console.log('Bid data being sent:', bidData);
-    
-    fetch('/.netlify/functions/get-leaderboard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bidData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('✅ Bid saved to leaderboard!', data);
-        // Refresh the leaderboard display
-        updateLeaderboard();
-    })
-    .catch(error => {
-        console.error('Error saving to leaderboard:', error);
-    });
-}
-        function updateLeaderboard() {
-    fetch('/.netlify/functions/get-leaderboard')
-    .then(response => response.json())
-    .then(bids => {
-        const leaderboardList = document.querySelector('.leaderboard-list');
-        const leaderboardPreview = document.querySelector('.leaderboard-preview');
-        
-        if (bids.length === 0) {
-            if (leaderboardList) {
-                leaderboardList.innerHTML = '<p>No bids yet!</p>';
+        function showSuccessModal() {
+            if (successModal) {
+                successModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
             }
-            if (leaderboardPreview) {
-                leaderboardPreview.textContent = 'No bids yet! Be the first!';
-            }
-            return;
         }
         
-        // Update the preview (collapsed view)
-        if (leaderboardPreview) {
-            leaderboardPreview.innerHTML = bids.slice(0, 3)
-                .map((bid, index) => `${index + 1}. ${bid.name} - $${bid.amount}`)
-                .join('<br>');
-        }
-        
-        // Update the full list (expanded view)
-        if (leaderboardList) {
-            leaderboardList.innerHTML = bids
-                .map((bid, index) => `
-                    <div class="leaderboard-item ${index === 0 ? 'leader' : ''}">
-                        <span class="rank">${index + 1}</span>
-                        <span class="bidder-name">${bid.name}</span>
-                        <span class="bid-amount">$${bid.amount}</span>
-                    </div>
-                `)
-                .join('');
-        }
-    })
-    .catch(error => {
-        console.error('Error updating leaderboard:', error);
-    });
-}
-
-// Call it when the page loads
-updateLeaderboard();
-
-// Update it every 30 seconds
-setInterval(updateLeaderboard, 30000);
         function celebrateNewBid() {
             const bidSection = document.querySelector('.bid-section');
-            bidSection.classList.add('celebration');
-            
-            setTimeout(() => {
-                bidSection.classList.remove('celebration');
-            }, 1200);
-            
-            createFloatingEmojis();
-        }
-        
-        function createFloatingEmojis() {
-            const successEmojis = ['🎉', '🎊', '🏆', '💰', '⭐', '🚀', '👑', '💎', '🎯', '🔥'];
-            
-            for (let i = 0; i < 20; i++) {
-                setTimeout(() => {
-                    const emoji = document.createElement('div');
-                    emoji.textContent = successEmojis[Math.floor(Math.random() * successEmojis.length)];
-                    emoji.style.cssText = `
-                        position: fixed;
-                        font-size: ${Math.random() * 1.5 + 1.5}rem;
-                        left: ${Math.random() * 100}vw;
-                        top: 100vh;
-                        z-index: 10000;
-                        pointer-events: none;
-                        animation: floatUp ${3 + Math.random() * 2}s ease-out forwards;
-                    `;
-                    
-                    document.body.appendChild(emoji);
-                    setTimeout(() => emoji.remove(), 5000);
-                }, i * 150);
-            }
-        }
-        
-        // ========================================
-        // INITIALIZATION
-        // ========================================
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                console.log('🚀 Initializing Goldy Brown Auction...');
-                
-                setupEventListeners();
+            if (bidSection) {
+                bidSection.classList.add('celebration');
                 
                 setTimeout(() => {
-                    initializeStripe();
-                }, 500);
-                
-                // Initial data fetch
-                fetchLeaderboardData();
-                
-                // Start countdown timer
-                updateCountdown();
-                setInterval(updateCountdown, 1000);
-                
-                // Refresh leaderboard every 30 seconds
-                setInterval(fetchLeaderboardData, 30000);
-                
-                console.log('✅ Auction initialized successfully!');
-                console.log('💳 Stripe integration active');
-                console.log('📊 Live leaderboard system ready');
-                console.log('⏰ Countdown timer running');
-                console.log('🎮 Production mode active!');
-                
-            } catch (error) {
-                console.error('❌ Critical error during initialization:', error);
-                alert('❌ Application failed to initialize. Please refresh the page.');
+                    bidSection.classList.remove('celebration');
+                }, 1200);
             }
-        });
-        
-        // Export functions for external use
-        window.GoldyBrownAuction = {
-            refreshLeaderboard: fetchLeaderboardData,
-            getCurrentHighBid: () => currentHighBid,
-            getLeaderboardData: () => [...leaderboardData]
-        };
-        
-        console.log('🎯 Goldy Brown Auction - PRODUCTION READY! 🚀');
-    }); // Add this line - likely missing closing for something
-    </script>
-</body>
-</html>
-
-
