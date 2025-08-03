@@ -1770,7 +1770,7 @@ setInterval(updateLeaderboard, 30000);
                 console.error('❌ Critical error during initialization:', error);
                 alert('❌ Application failed to initialize. Please refresh the page.');
             }
-        });
+        });  // closes the DOMContentLoaded event listener
         
         // Export functions for external use
         window.GoldyBrownAuction = {
@@ -1781,8 +1781,7 @@ setInterval(updateLeaderboard, 30000);
         
         console.log('🎯 Goldy Brown Auction - PRODUCTION READY! 🚀');
     </script>
-</body>
-</html>
+
 
 
 
