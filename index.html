@@ -1,67 +1,3 @@
-// Add this right after your <script> tag to debug the issues
-
-console.log('🔍 DEBUG: Script started loading at', new Date().toISOString());
-
-// Check if elements exist
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔍 DEBUG: DOM Content Loaded');
-    
-    // Check critical elements
-    const elements = {
-        bidButton: document.getElementById('bidButton'),
-        days: document.getElementById('days'),
-        hours: document.getElementById('hours'),
-        minutes: document.getElementById('minutes'),
-        seconds: document.getElementById('seconds'),
-        leaderboard: document.getElementById('leaderboard')
-    };
-    
-    console.log('🔍 DEBUG: Elements found:', {
-        bidButton: !!elements.bidButton,
-        timerElements: !!(elements.days && elements.hours && elements.minutes && elements.seconds),
-        leaderboard: !!elements.leaderboard
-    });
-    
-    // Test timer directly
-    if (elements.days) {
-        console.log('🔍 DEBUG: Setting test timer values...');
-        elements.days.textContent = '29';
-        elements.hours.textContent = '23';
-        elements.minutes.textContent = '59';
-        elements.seconds.textContent = '59';
-        
-        setTimeout(() => {
-            console.log('🔍 DEBUG: Timer values after 1 second:', {
-                days: elements.days.textContent,
-                hours: elements.hours.textContent,
-                minutes: elements.minutes.textContent,
-                seconds: elements.seconds.textContent
-            });
-        }, 1000);
-    }
-    
-    // Test bid button directly
-    if (elements.bidButton) {
-        console.log('🔍 DEBUG: Adding test click to bid button...');
-        elements.bidButton.addEventListener('click', () => {
-            console.log('🔍 DEBUG: Bid button clicked!');
-            alert('Bid button is working!');
-        });
-    }
-    
-    // Check if functions exist
-    console.log('🔍 DEBUG: Functions exist:', {
-        updateCountdown: typeof updateCountdown,
-        setupEventListeners: typeof setupEventListeners,
-        initializeStripe: typeof initializeStripe,
-        fetchLeaderboardData: typeof fetchLeaderboardData
-    });
-    
-    // Check auction end date
-    console.log('🔍 DEBUG: Auction end date:', auctionEndDate);
-    console.log('🔍 DEBUG: Is valid date:', !isNaN(auctionEndDate.getTime()));
-    console.log('🔍 DEBUG: Time until auction:', auctionEndDate - new Date());
-});
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1210,6 +1146,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     <script>
         // ========================================
+        // DEBUG MODE - Remove this section after confirming everything works
+        // ========================================
+        console.log('🔍 DEBUG: Script started loading at', new Date().toISOString());
+        
+        // ========================================
         // PRODUCTION CONFIGURATION
         // ========================================
         const STRIPE_PUBLISHABLE_KEY = 'pk_live_51Li2EuHHRq5TjW22f3qkBVCiibv9CvogZuYTRa79BXS5ZhWxszEeBrBZZRhzrwPR4IzYelVSy4qxWfQ3wwWxWNhP00ZR6je4XQ';
@@ -1768,5 +1709,3 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     bidSection.classList.remove('celebration');
                 }, 1200);
-            }
-
